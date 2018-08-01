@@ -16,7 +16,14 @@ save(expr, file="~/Dropbox (HuGeF)//GSECA/Examples/PRAD_PTEN.expr.Rdata")
 
 M = dcast(expr, ensembl_gene_id~Tumor_Sample_Barcode, value.var = 'value')
 L = unique(expr[,c('Tumor_Sample_Barcode','type')])$type
-save(M,L, file="~/Dropbox (HuGeF)//GSECA/Examples/PRAD_PTEN.expr.M.L.Rdata")
+colnames(M)
+save(M,L, file="Rdata/PRAD_PTEN.expr.M.L.Rdata")
+
+x=lapply(pl, paste, collapse="\t")
+y=mapply(function(a,b){paste0(a, '\t',b)}, names(x), x, SIMPLIFY = F)
+z=do.call(rbind,y)
+
+write(z, file="gene_sets/cereda.158.KEGG.gmt", ncolumns = 1)
 
 # load("~/Dropbox (HuGeF)//GSECA/Examples/PRAD_PTEN_fusion.Rdata")
 
