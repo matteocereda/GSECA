@@ -56,16 +56,6 @@ source("Scripts/config.R")
 ```
 
 GSECA can be run on an R shell following the commands reported in the script `Scripts/GSECA.R`
-# 
-# ## How to run GSECA from command line
-# 
-# 
-# GSECA can be run on a UNIX shell using the script `Scripts/Bash/GSECA_v1.0_cmd.R` and the `Rscript` command. It requires as arguments (in the specified order):
-# 
-# - The full path to the files containing the gene expression matrix, the sample type labels and the gene sets list;
-# - The number of cores (or clusters) to use for parallel execution;
-# - The number of simulation for the bootstrapping procedure;
-# - The full path to the output folder.
 
 ## Examples
 
