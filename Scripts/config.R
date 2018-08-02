@@ -1135,7 +1135,6 @@ GSECA_executor <- function( M
                            , BOOTSTRP = F
                            , nsim = 10
                            , PSUMLOG = 0.01
-                           , PADJ    = 0.1
                            , PEMP    = 1
                            , SRATE   = 0.7
                            , toprank = 0
@@ -1228,7 +1227,7 @@ GSECA_executor <- function( M
     analysis <- create.output.folder(analysis, outdir) 
     
     outfig <- paste0(analysis,"/ECmap.psumlog_",PSUMLOG,
-                     "_padj_",PADJ,
+                     "_padj_",p_adj_th,
                      "_pemp_",PEMP,
                      "_srate_",SRATE,".pdf") 
     
@@ -1244,7 +1243,7 @@ GSECA_executor <- function( M
   
   ecmap <- tryCatch(GSECA.ECmap( gseca
                        , filename=outfig
-                       , p_adj = PADJ
+                       , p_adj = p_adj_th
                        , psumlog=PSUMLOG
                        , pemp = PEMP
                        , srate=SRATE
