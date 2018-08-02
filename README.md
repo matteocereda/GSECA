@@ -46,7 +46,7 @@ library(DT)
 shiny::runGitHub('matteocereda/GSECA')
 ```
 
-##How to run GSECA as a stand-alone app
+## How to run GSECA as a stand-alone app
 
 
 Clone the repository on your local machine and open R from the repository folder. Load the following files in the R Global Environment:
@@ -56,18 +56,18 @@ source("Scripts/config.R")
 ```
 
 GSECA can be run on an R shell following the commands reported in the script `Scripts/GSECA.R`
+# 
+# ## How to run GSECA from command line
+# 
+# 
+# GSECA can be run on a UNIX shell using the script `Scripts/Bash/GSECA_v1.0_cmd.R` and the `Rscript` command. It requires as arguments (in the specified order):
+# 
+# - The full path to the files containing the gene expression matrix, the sample type labels and the gene sets list;
+# - The number of cores (or clusters) to use for parallel execution;
+# - The number of simulation for the bootstrapping procedure;
+# - The full path to the output folder.
 
-##How to run GSECA from command line
-
-
-GSECA can be run on a UNIX shell using the script `Scripts/Bash/GSECA_v1.0_cmd.R` and the `Rscript` command. It requires as arguments (in the specified order):
-
-- The full path to the files containing the gene expression matrix, the sample type labels and the gene sets list;
-- The number of cores (or clusters) to use for parallel execution;
-- The number of simulation for the bootstrapping procedure;
-- The full path to the output folder.
-
-##Examples
+## Examples
 
 Example of running GSECA on an R shell. 
 
