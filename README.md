@@ -6,8 +6,6 @@
 
 [GSECA]() is a R application with a Shiny web interface that allows its execution from a web-based environment (section 5). The stand-alone version is also supported, to be run from R GUI (section 6) or from UNIX shell (section 7). Examples on how to use GSECA are provided (section 8).
 
-***
-
 ## GSECA description
 
 [GSECA]() is an **R** software that implements Gene Set Enrichment Class Analysis to detect deregulated biological processes in heterogeneous RNA sequencing experiments. Given two cohorts ( Cases / Controls ), the algorithm follows three main steps:
@@ -19,8 +17,6 @@
 -  **3. Statistical Framework**: discretized data are then evaluated in a statistical framework to detect altered biological processesbetween the two cohorts. For each tested gene set, the cumulative proportions of genes in each EC are compared by Fisher's Exact test. To quantify the degree of perturbation across the ECs for all gene sets, the algorithm combines the significance level of each comparison into an enrichment score ES. To reduce false positive discoveries and correct for different sample size of the cohorts, two (optional) bootstrapping procedures are implemented, which measure the empirical P value and the success rate (SR) of each ES.
 
 GSECA provides to the user a graphical overview of the variation of expression of each gene set across the seven classess between the two cohorts. The deregulated gene sets are visualized as EC map (see below image). The EC maps display the difference of the cumulative proportion of genes of a gene set in the seven ECs between the two cohorts as triangles, whose size is proportional to such difference. Furthermore, the upper and the lower vertex of the triangles represent enrichment and depletion in the cohort A as compared to B, respectively. Finally, GSECA orders DGSs accordingly to their ES, thus obtaining the list of the most deregulated processes in the phenotype of interest. 
-
-***
 
 ## Usage
 
@@ -63,8 +59,6 @@ source("Scripts/config.R")
 
 GSECA can be run on an R shell following the commands reported in the script `Scripts/GSECA.R`
 
-***
-
 ## Examples
 
 Example of running GSECA on an R shell. 
@@ -104,8 +98,6 @@ res = GSECA_executor(  M
 ```
 ![](www/GSECA.PRAD.png)
 
-***
-
 ## Contributors
 
 GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria
@@ -115,8 +107,6 @@ Main developer: Matteo Cereda and Andrea Lauria.
 Contributing developers: None.
 
 Contributions are always welcome!
-
-***
 
 ## License
 
