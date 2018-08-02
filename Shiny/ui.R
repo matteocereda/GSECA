@@ -14,10 +14,12 @@ shinyUI(
   fluidPage(theme = shinytheme("simplex"),
     navbarPage("GSECA",
 
-             tabPanel("GSECA",
+             tabPanel("Analysis",
 
-                      titlePanel("GSECA"),
-                      h4("Gene Set Enrichment Class Analysis"),
+                      # titlePanel("Settings"),
+                      # h4("Gene Set Enrichment Class Analysis"),
+                      # h4("Settings"),
+                      # img(src='GSECA.banner.png', align = "top", width="390", height="120"),
                       shinyjs::useShinyjs(),
                       shinyjs::inlineCSS(appCSS),
 
@@ -28,11 +30,8 @@ shinyUI(
                                  , selectInput("symbol", 'Gene ID', choices=c( "HUGO symbol"= "symbol"
                                                                                ,"ENSEMBL Gene Id"="ensembl_gene_id"
                                  ), selected="symbol")
-                                 , selectInput("norm", 'Expression Normalization', choices=c( "FPKM"
-                                                                             ,"RSEM"
-                                                                             # , "TPM" =3
-                                                                             # , "RPKM" = 4
-                                 ), selected="FPKM")
+                                 # , selectInput("nClass", 'Number of ECs (default = 7)', choices=c(2:10), selected=7)
+                                 , sliderInput("nClass", 'Number of ECs (default = 7)', min=2, max=10, value = 7)
                                  , textInput("analysis", "Analysis Title:", value = "GSECA")
                                  , selectInput("gs_dataset", "Select MsigDB GeneSet:",choices = list('Hallmark (H)'='h.all.v6.0.symbols.gmt',
                                                                                                      'Positional (C1)'='c1.all.v6.0.symbols.gmt',
@@ -59,13 +58,7 @@ shinyUI(
                                 , selectInput("stat.test", 'Statistical Test', choices=c( "Fisher's Exact Test"='fisher'
                                                                                         ,"Chi-Square Test"='chisq'
                                                                                         ), selected='fisher')
-
-                                , selectInput("stat.test.tail", 'Statistical Test Alternative Hypothesis'
-                                              ,  choices = c("two.sided"='two.sided',"greater"='greater',"less"='less'), selected='two.sided')
-
-                                , textInput("pw_sim", "Power - Number of simulation:", value = 10)
-                                , sliderInput("pw", "Power cutoff:",min=0, max=1, value = 0.9)
-
+                                
                                 , selectInput("correction", 'Multiple test correction', choices=c( "Bonferroni"="bonferroni"
                                                                                           ,"FDR"='fdr'), selected='fdr')
                                 , textInput("p.adj", "Adjusted p-value cutoff",value = 0.05)
@@ -89,10 +82,10 @@ shinyUI(
 
                         # MAIN PANEL
                         mainPanel(
-                          img(src='GSECA.png', align = "right", width="222", height="60"),
+                          img(src='GSECA.banner.png', align = "top", width="450", height="130"),
                           tabsetPanel(
                               tabPanel('Results',   DT::dataTableOutput('gseca_results'))
-                            , tabPanel("EnrichmentClass Map",    plotOutput("gseca_heatmap",height = "1000px"))
+                            , tabPanel("EnrichmentClass Map",    plotOutput("gseca_heatmap", width = "100%"))
                             # , tabPanel("Score",      plotOutput("gseca_score",height = "1000px"))
                           )
                          )
@@ -100,7 +93,8 @@ shinyUI(
              ),
 
              tabPanel("Help",
-                      titlePanel("Help page")
+                      titlePanel("Help page"),
+                      includeMarkdown("../README.md")
              )
 
     )

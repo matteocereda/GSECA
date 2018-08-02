@@ -1,5 +1,4 @@
 source("../Scripts/config.R")
-source("./shiny_libs.R")
 
 shinyInput <- function(FUN, len, id, ...) {
   inputs <- character(len)
@@ -13,26 +12,17 @@ options(shiny.maxRequestSize = 30*1024^2)
 options(scipen=3)
 
 shinyServer(function(input, output) {
-      current = reactiveValues(res =NULL)
-
-
+      
+  current = reactiveValues(res =NULL)
+      
       RUN_GSECA = eventReactive(input$submit, {
               M             = read.delim(input$exp_matrix$datapath, header=T, stringsAsFactors = F)
               L             = read.delim(input$sample_labels$datapath, header=T, stringsAsFactors = F)[,1]
-              # browser()
               symbol        = input$symbol
-              # if(symbol=="HUGO symbol"){
-              #   symbol='symbol'
-              # }else if(symbol=="ENSEMBL Gene Id"){
-              #   symbol="ensembl_gene_id"
-              # }
-              norm          = input$norm
+              nClass        = input$nClass
               gene.set.path = ifelse(!input$customGS,get.gene.set(input$gs_dataset),input$gene_set$datapath)
               geneset       = read.gmt.file(gene.set.path)
               s.test        = input$stat.test
-              tail.test     = input$stat.test.tail
-              pw_sim        = input$pw_sim
-              pw            = input$pw
               correction    = input$correction
               p_adj_th      = input$p.adj
               empirical     = input$empirical=="True"
@@ -40,16 +30,9 @@ shinyServer(function(input, output) {
               analysis      = input$analysis
               nsim          = input$nsim
               outdir        = "../Results"
-
-              print(analysis)
-              print(symbol)
-              print(norm)
-
-              # GSECA_executor(M, L, symbol, geneset, s.test, tail.test, pw_sim, pw, correction, p_adj_th, norm,
-              #                  analysis, outdir)
               
               cpus = detectCores()
-              print(cpus)
+              
               if (!is.null(cpus)) 
                 {
                   cpus = cpus - 1
@@ -57,53 +40,24 @@ shinyServer(function(input, output) {
                   cpus = 3
                 }
               
-              GSECA_executor_shiny ( M
-                                    , L
-                                    , symbol
-                                    , geneset
-                                    , s.test 
-                                    , tail.test 
-                                    , pw_sim 
-                                    , pw
-                                    , correction 
-                                    , p_adj_th
-                                    , norm 
-                                    , analysis
-                                    , outdir
-                                    , cpus
-                                    , empirical
-                                    , bootstrapping
-                                    , nsim )
+              GSECA_executor( M          = M
+                            , L          = L
+                            , symbol     = symbol
+                            , geneset    = geneset
+                            , s.test     = s.test
+                            , correction = correction 
+                            , p_adj_th   = p_adj_th
+                            , nClass     = nClass
+                            , analysis   = analysis
+                            , outdir     = outdir
+                            , N.CORES    = cpus
+                            , EMPIRICAL  = empirical
+                            , BOOTSTRP   = bootstrapping
+                            , nsim       = nsim )
         
                                                 
       })
-              
-              # montecarlo    = input$stat.test==4
-              # nsim          = input$nsim
-              # genome        = input$genome
-
-              # if (!montecarlo)
-              #   B = read.delim(input$cohort_B$datapath, header=T, stringsAsFactors = F)
-              #
-              # if(!is.null(A) & (montecarlo | !is.null(B)) & !is.null(geneset) ){
-              #
-              #   if (montecarlo)
-              #     load(paste("./RData/",genome,".gene.cds.length.RData",sep = ""))
-              #
-              #   cpus = detectCores()
-              #   if (!is.null(cpus))
-              #   {
-              #     cpus = cpus - 1
-              #   } else {
-              #     cpus = 2
-              #   }
-              #
-              #   MEGA(A, B, geneset, fdr_th, bootstrapping, nsim, s.test, montecarlo, gene.cds.length, cpus)
-              # }
-
-      
-
-
+            
       # TAB results
       output$gseca_results   = DT::renderDataTable({
         results = RUN_GSECA()
@@ -156,45 +110,4 @@ shinyServer(function(input, output) {
         grid.text("GSECA v.1 2018", vp = viewport(layout.pos.row = 4, layout.pos.col = 1:4), just="center")
 
       })
- 
-      # output$gseca_score = renderPlot({
-      # 
-      #   # p= ggplotly(current$score)
-      #   # plot_ly(p)
-      #   print(current$score)
-      #   # plot_ly(p)
-      #   #
-      #   # browser()
-      #   # m = clone.composition.plot.overall.ply(current$composition)
-      #   #
-      #   # print(m)
-      #   # # plot_ly(m, y=sample, x=percentage,  type='bar', orientation = "h", color=composition, colors=color_clone_composition)
-      #   # plot_ly( y=m$sample, x=m$percentage,  type='bar', orientation = "h", color=m$composition, colors=color_clone_composition_pl) %>%
-      #   #   layout(p, barmode = 'stack',
-      #   #          yaxis=list(title='', tickfont=list(family = "Arial, sans-serif")),
-      #   #          xaxis=list(title='Alterations (%)', titlefont=list(family = "Arial, sans-serif"), tickfont=list(family = "Arial, sans-serif"))
-      #   #   )
-      # })
-       # output$downloadData <- downloadHandler(
-       #
-       #   filename = function() {
-       #     "GSECA_results.tsv"
-       #   },
-       #   content = function(con) {
-       #     write.table(current$res,con,col.names = T, row.names = F, quote = F, sep="\t")
-       #   }
-       # )
-       #
-       # output$downloadExample <- downloadHandler(
-       #   filename = function(){
-       #     "Example_dataset.zip"
-       #   },
-       #   content = function(con){
-       #      filesToSave <- c( "example_dataset/ncomm.cereda.syCRCs.tsv.gz"
-       #                      ,"example_dataset/ncomm.cereda.1000.genomes.tsv.gz")
-       #
-       #     zip(zipfile=con, files = filesToSave)
-       #   },
-       #   contentType = "application/zip"
-       # )
   })

@@ -43,7 +43,7 @@ library(shinyjs)
 library(shinythemes)
 library(DT)
 
-shiny::runGitHub('matteocereda/GSECA')
+runGitHub('matteocereda/GSECA')
 ```
 
 ***
