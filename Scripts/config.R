@@ -589,7 +589,7 @@ get_mixture_expr_class <- function(rna
                                    , nClass=7
                                    , ncor=2){
   
-  message(" === Finite Mixture Model === \n", 
+  message(" === FMM and DD === \n", 
           "[*] NE threshold: "                , ne_value, "\n", 
           "[*] Number of Expression Classes: ", nClass  , "\n", 
           " -- Parallelizing "                , ncor    , " cores ...")
@@ -640,7 +640,7 @@ get_mixture_expr_class <- function(rna
   stats <- cbind(samples, stats[match(rownames(stats), samples$SampleID),])
   stats <- unrowname(stats)
   
-  message("[*] FMM Setting expression classes ...")
+  message("[*] DD Setting expression classes ...")
   l <- lapply(l, function(x) x[,!colnames(x)%in%c('mean1','mean2','st1','st2','lambda1','lambda2')])
   l <- suppressMessages(lapply_pb(l, set_expression_class_on_posterior, posterior_cutoff=.9, nClass=nClass))
   
@@ -664,9 +664,9 @@ gene_class_representation <- function(r, pl
   
   total_genes <- unique(unlist(pl))
   
-  message(" === Gene Class Representation === \n", 
-          "[*] # gene sets:\t",   length(pl))
-  
+  # message(" === Gene Class Representation === \n", 
+          # "[*] # gene sets:\t",   length(pl))
+  # 
   cn <- c("geneID", "expr_class")
   
   samplesID <- unique(r$mixture_model[,c("SampleID","type")])
@@ -711,7 +711,7 @@ gene_class_representation <- function(r, pl
   invariant <- subset(cnts, is.na(direction))
   cnts      <- subset(cnts, !is.na(direction))
   
-  message(paste0("[*] GCR Testing genes with ",method," ..."))
+  # message(paste0("[*] GCR Testing genes with ",method," ..."))
   
   if(method=="fisher"){
     stats <- t(apply(cnts, 1, FISHER, TAIL=TAIL))
@@ -732,10 +732,10 @@ gene_class_representation <- function(r, pl
   
   cnts <- rbind(cnts, invariant)
   
-  message("[*] GCR multiple testing correction ...")
+  # message("[*] GCR multiple testing correction ...")
   
   # Fisher's method
-  message("[*] GCR scoring ...")
+  # message("[*] GCR scoring ...")
   
   cnts <- dlply(cnts, .(geneID), here(mutate)
                 , p.adj  = get_padj(correction)(pv)
@@ -893,7 +893,7 @@ GSECA <- function(  pl
   return(core)
 }
 
-orderGSECA <- function(x, PSUMLOG, PEMP, SRATE){
+orderGSECA <- function(x, PSUMLOG, PEMP=NA, SRATE=NA){
   
   # Rank pathways using 3 metrics:
   # AS, SR and emprical P-Value
@@ -902,11 +902,35 @@ orderGSECA <- function(x, PSUMLOG, PEMP, SRATE){
   y$method='GSECA'
   colnames(y)[2] = 'adj.P.Val'
   
-  y$sig = y$adj.P.Val<=PSUMLOG & y$p.emp<=PEMP & y$success_rate>=SRATE
+  if(!is.na(PEMP) & !is.na(SRATE)){
+    
+    y$sig = y$adj.P.Val<=PSUMLOG & y$p.emp<=PEMP & y$success_rate>=SRATE
+    
+    y=y[order(1-y$sig, y$adj.P.Val,  y$p.emp, 1-y$success_rate,  decreasing = F),]
+    
+    y$rank = 1:nrow(y)
+
+  }else if(!is.na(PEMP) & is.na(SRATE) ){
+    
+    y$sig = y$adj.P.Val<=PSUMLOG & y$p.emp<=PEMP 
+    
+    y=y[order(1-y$sig, y$adj.P.Val,  y$p.emp,  decreasing = F),]
+    y$rank = 1:nrow(y)
+    
+  }else if(is.na(PEMP) & !is.na(SRATE)){
+    
+    y$sig = y$adj.P.Val<=PSUMLOG & y$success_rate>=SRATE
+    
+    y=y[order(1-y$sig, y$adj.P.Val, 1-y$success_rate,  decreasing = F),]
+    y$rank = 1:nrow(y)
   
-  y=y[order(1-y$sig, y$adj.P.Val,  y$p.emp, 1-y$success_rate,  decreasing = F),]
-  y$rank = 1:nrow(y)
-  
+  } else {
+    y$sig = y$adj.P.Val<=PSUMLOG 
+    
+    y=y[order(1-y$sig, y$adj.P.Val,  decreasing = F),]
+    y$rank = 1:nrow(y)
+  }
+    
   return(y)
 }
 
@@ -1114,14 +1138,17 @@ GSECA_executor <- function( M
                            , PADJ    = 0.1
                            , PEMP    = 1
                            , SRATE   = 0.7
+                           , toprank = 0
 ){
   
   print.logo()
   
   if( N.CORES > nsim ) N.CORES <- nsim
   
+
   # 01. Prepare Data 
   expr <- get_expression_dataset(M, L, symbol)
+  geneset <- prepare_pl(geneset, expr)
   
   # 02. MIXTURE MODEL
   expr <- get_mixture_expr_class(expr
@@ -1129,6 +1156,7 @@ GSECA_executor <- function( M
                                  , ne_value = 0.01
                                  , nc       = N.CORES
   )
+  
   
   # 03. GCR 
   gcr  <- gene_class_representation(expr
@@ -1214,12 +1242,14 @@ GSECA_executor <- function( M
     outfig <- NULL
   }
   
-  ecmap <- GSECA.ECmap( gseca
+  ecmap <- tryCatch(GSECA.ECmap( gseca
                        , filename=outfig
                        , p_adj = PADJ
                        , psumlog=PSUMLOG
                        , pemp = PEMP
-                       , srate=SRATE)
+                       , srate=SRATE
+                       , toprank = toprank )
+                    , error=function(e) return(NULL))
 
   res = list( 'gseca' = gseca, 
               'ECmap' = ecmap,
@@ -1242,57 +1272,6 @@ ytickform <- function(x){
   lab <- sprintf("%05s",x)
 }
 
-
-heatmap_GCR = function( gcr
-                          , filename=NULL
-                          # , p_adj=0.1
-                          # , pow=0.9
-                          , sc = NULL
-){
-
-  require(RColorBrewer)
-  require(scales)
-  require(gtable)
-
-
-
-  toplot = subset(gcr,
-                  sig
-                    # & symbol%in%pl[['KEGG_CYTOKINE_CYTOKINE_RECEPTOR_INTERACTION']]
-                  )
-
-  if(nrow(toplot)==0| is.null(toplot)) stop(message("No enriched genes"))
-
-  toplot$p.adj[which(!toplot$sig)]=NA
-
-
-  myPalette <-colorRampPalette(brewer.pal(9, "RdYlBu"))
-
-  gg_hm =ggplot(toplot, aes(x=expr_class,y=symbol, fill=p.adj)) +
-    geom_tile(fill = "white",colour = "black") + #
-    theme_bw() +
-    coord_equal() +
-    theme(
-      legend.position = 'left'
-      , panel.grid.major = element_blank()
-      , panel.grid.minor = element_blank()
-      , panel.border = element_blank()
-      , panel.background = element_blank()
-      , axis.text.x = element_text(angle=90, vjust=0.5,hjust=1)) + xlab("") +ylab("") +
-    geom_point(data=subset(toplot, delta>=0), aes(size=delta),shape=24,colour="black",na.rm=TRUE,show.legend = T) +
-    geom_point(data=subset(toplot, delta<0), aes(size=abs(delta)),shape=25,colour="black",na.rm=TRUE,show.legend = T) +
-    scale_fill_gradientn(colours = myPalette(5),na.value="white")+
-    scale_size_continuous(range = c(1,5)
-                          #,limits=c(0,6),breaks=c(0,1,2), labels=c("0","1","2")
-    )
-
-
-  pdf(file=filename,width = unit(12.27, "inches"), height = unit(15.69, "inches"))
-  grid.draw(g)
-  dev.off()
-
-
- }
 
 anno_bimodal = function() {
   n = 7
@@ -1329,7 +1308,7 @@ GSECA.ECmap = function( gseca
                         , psumlog=1
                         , pemp=NULL
                         , srate=NULL
-                        , toprank=NULL
+                        , toprank=0
                                 
 ){
 
@@ -1337,31 +1316,23 @@ GSECA.ECmap = function( gseca
 
   message("Thresholds: \nP-value adj ",p_adj,"\nP-value sumlog ",psumlog,"\n")
   
-  sbs = subset(gseca, 
-               p.adj<=p_adj 
-               & sumlog<=psumlog)
+  # browser()
+  pemp  = ifelse(sum(is.na(unique(gseca$p.emp)))==0, pemp, NA)
+  srate = ifelse(sum(is.na(unique(gseca$success_rate)))==0, srate, NA)
   
-  if(!is.na(pemp) && !is.na(unique(gseca$p.emp))){
-    sbs = subset(sbs, p.emp<=pemp)
+  sbs = subset( orderGSECA(subset(gseca,p.adj<=p_adj), psumlog, pemp, srate ) , sig)
+
+  if(nrow(sbs)==0){
+    message("NO altered gene sets")
+    return(NULL)
   }
+
+  sel = unique(sbs$gene_set)
+  if(length(sel)==0| is.null(sel)) stop(message("No enriched gene sets"))
   
-  sr_bar = F
-  if(!is.na(srate) && !is.na(unique(gseca$success_rate))){
-    sr_bar = T
-    sbs = subset(sbs, success_rate>=srate)
-  }
-  
-  if( is.null(toprank) ) {
-    sel = unique(sbs$gene_set)
-    
-    if( is.na(unique(gseca$p.emp)) && is.na(unique(gseca$success_rate))){
-      sel <- unique(sbs[order(sbs$sumlog, decreasing = F), "gene_set"])[1:20]
-      warning("Bootstrapping controls are missing; top 20 gene sets visualized in EC map.")
-    }
-    
-    if(length(sel)==0| is.null(sel)) stop(message("No enriched gene sets"))
-  } else {
-    sel <- orderGSECA(gseca, PSUMLOG = psumlog, PEMP = pemp, SRATE = srate)$gene_set[1:toprank]
+  if( toprank!=0 ) {
+    toprank = ifelse(toprank>length(sel), lenght(sel), toprank)
+    sel = sel[1:toprank]
   }
 
   toplot = subset(gseca, gene_set%in%sel)
@@ -1374,7 +1345,7 @@ GSECA.ECmap = function( gseca
 
   toplot$gene_set = factor(toplot$gene_set, levels=gs_order)
   score$gene_set = factor(score$gene_set, levels=gs_order)
-
+  # browser()
   ECmap  = dcast(data = toplot, gene_set~expr_class, value.var = 'p.adj' ); rownames(ECmap)  = ECmap[,1];  ECmap  = ECmap[,-1]
   ECmap2 = dcast(data = toplot, gene_set~expr_class, value.var = 'delta' ); rownames(ECmap2) = ECmap2[,1]; ECmap2 = ECmap2[,-1]
   ECmap3 = dcast(data = toplot, gene_set~expr_class, value.var = 'CASE.P' ); rownames(ECmap3) = ECmap3[,1]; ECmap3 = ECmap3[,-1]
@@ -1445,7 +1416,7 @@ GSECA.ECmap = function( gseca
   )
   
   
-  if(sr_bar & length(unique(score[match(rownames(ECmap), score$gene_set), "success_rate"]))>1){
+  if(!is.na(srate) & length(unique(score[match(rownames(ECmap), score$gene_set), "success_rate"]))>1){
     row_ha = rowAnnotation(
       ES = row_anno_barplot(matrix(-10*log10(score[match(rownames(ECmap), score$gene_set), "sumlog"])), 
                             axis = TRUE,  border = T, axis_side = "bottom", 

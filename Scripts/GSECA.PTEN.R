@@ -1,11 +1,11 @@
 # PRAD - PTEN loss analysis
-#
-# 0. Resources ====
+
+# load configurations
 source("Scripts/config.R")
 
-cat("Loading Data ...\n")
 # Gene expression matrix & sample type
-load("~/Dropbox (HuGeF)/GSECA_Paper/PRAD_PTEN.expr.M.L.Rdata")
+M = read.delim("Examples/PRAD.ptenloss.M.tsv")
+L = read.delim("Examples/PRAD.ptenloss.L.tsv")[,1]
 
 # Pathway list
 pl <- read.gmt.file("gene_sets/cereda.158.KEGG.gmt")
@@ -19,13 +19,14 @@ res = GSECA_executor(  M
                      , p_adj_th = 0.1
                      , nClass = 7
                      , N.CORES = 2
-                     , EMPIRICAL = F
-                     , BOOTSTRP = F
+                     , EMPIRICAL = T
+                     , BOOTSTRP = T
                      , nsim = 2
-                     , PSUMLOG = 0.01
+                     , PSUMLOG = 0.25
                      , PADJ    = 0.1
-                     , PEMP    = 1e-3
-                     , SRATE   = 0.9
+                     , PEMP    = 1
+                     , SRATE   = 0.7
+                     , toprank = 20
 )
 
 
