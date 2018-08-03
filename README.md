@@ -33,7 +33,7 @@ GSECA requires as input files:
 -  Gene sets (".gmt" file): the list of gene sets to be tested. It can be predefined by the user, or selected from a collection of pre-processed gene sets of biological pathways and diseases included in the Shiny app.
 
 
-## 5. How to run GSECA as a R shiny app in your browser
+## How to run GSECA as a R shiny app in your browser
 
 
 Install the **Shiny** package (and the required dependencies) in R, and use the function `runGithub()`. See the example below,
