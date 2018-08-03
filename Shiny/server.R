@@ -16,13 +16,14 @@ shinyServer(function(input, output) {
   current = reactiveValues(res =NULL)
       
       RUN_GSECA = eventReactive(input$submit, {
+              setwd("../")
               M             = read.delim(input$exp_matrix$datapath, header=T, stringsAsFactors = F)
               L             = read.delim(input$sample_labels$datapath, header=T, stringsAsFactors = F)[,1]
               symbol        = input$symbol
               nClass        = input$nClass
               gene.set.path = ifelse(!input$customGS,get.gene.set(input$gs_dataset),input$gene_set$datapath)
               geneset       = read.gmt.file(gene.set.path)
-              s.test        = input$stat.test
+              s.test        = "fisher" #input$stat.test
               correction    = input$correction
               p_adj_th      = input$p.adj
               empirical     = input$empirical=="True"
@@ -39,7 +40,6 @@ shinyServer(function(input, output) {
                 } else {
                   cpus = 3
                 }
-              
               GSECA_executor( M          = M
                             , L          = L
                             , symbol     = symbol

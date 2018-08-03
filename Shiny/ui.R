@@ -27,8 +27,9 @@ shinyUI(
                         sidebarPanel(
                                  fileInput('exp_matrix', 'Expression Matrix (tab-separated file)*', accept = c('text/tab-separated-values', c('.tsv','.gz') ))
                                  , fileInput('sample_labels', 'Sample type labels (tab-separated file)*', accept = c('text/tab-separated-values', c('.tsv','.gz') ))
-                                 , selectInput("symbol", 'Gene ID', choices=c( "HUGO symbol"= "symbol"
-                                                                               ,"ENSEMBL Gene Id"="ensembl_gene_id"
+                                 , selectInput("symbol", 'Gene ID', choices=c( "ENSEMBL Gene Id"="ensembl_gene_id",
+                                                                               "HUGO symbol"= "symbol"
+                                                                               
                                  ), selected="symbol")
                                  # , selectInput("nClass", 'Number of ECs (default = 7)', choices=c(2:10), selected=7)
                                  , sliderInput("nClass", 'Number of ECs (default = 7)', min=2, max=10, value = 7)
@@ -55,10 +56,10 @@ shinyUI(
                                                                                                      'Immunological signatures (C7)'='c7.all.v6.0.symbols.gmt')
                                                ,selected = 'c2.cp.kegg.v6.0.symbols.gmt')
 
-                                , selectInput("stat.test", 'Statistical Test', choices=c( "Fisher's Exact Test"='fisher'
-                                                                                        ,"Chi-Square Test"='chisq'
-                                                                                        ), selected='fisher')
-                                
+                                # , selectInput("stat.test", 'Statistical Test', choices=c( "Fisher's Exact Test"='fisher'
+                                #                                                         ,"Chi-Square Test"='chisq'
+                                #                                                         ), selected='fisher')
+                                # 
                                 , selectInput("correction", 'Multiple test correction', choices=c( "Bonferroni"="bonferroni"
                                                                                           ,"FDR"='fdr'), selected='fdr')
                                 , textInput("p.adj", "Adjusted p-value cutoff",value = 0.05)
