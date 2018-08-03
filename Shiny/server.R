@@ -1,4 +1,5 @@
-source("../Scripts/config.R")
+setwd("../")
+source("Scripts/config.R")
 
 shinyInput <- function(FUN, len, id, ...) {
   inputs <- character(len)
@@ -16,7 +17,7 @@ shinyServer(function(input, output) {
   current = reactiveValues(res =NULL)
       
       RUN_GSECA = eventReactive(input$submit, {
-              setwd("../")
+        
               M             = read.delim(input$exp_matrix$datapath, header=T, stringsAsFactors = F)
               L             = read.delim(input$sample_labels$datapath, header=T, stringsAsFactors = F)[,1]
               symbol        = input$symbol
@@ -30,7 +31,7 @@ shinyServer(function(input, output) {
               bootstrapping = input$bootstrapping=="True"
               analysis      = input$analysis
               nsim          = input$nsim
-              outdir        = "../Results"
+              outdir        = "Results"
               
               cpus = detectCores()
               
@@ -40,6 +41,7 @@ shinyServer(function(input, output) {
                 } else {
                   cpus = 3
                 }
+              
               GSECA_executor( M          = M
                             , L          = L
                             , symbol     = symbol

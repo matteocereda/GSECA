@@ -16,10 +16,6 @@ shinyUI(
 
              tabPanel("Analysis",
 
-                      # titlePanel("Settings"),
-                      # h4("Gene Set Enrichment Class Analysis"),
-                      # h4("Settings"),
-                      # img(src='GSECA.banner.png', align = "top", width="390", height="120"),
                       shinyjs::useShinyjs(),
                       shinyjs::inlineCSS(appCSS),
 
@@ -31,7 +27,6 @@ shinyUI(
                                                                                "HUGO symbol"= "symbol"
                                                                                
                                  ), selected="symbol")
-                                 # , selectInput("nClass", 'Number of ECs (default = 7)', choices=c(2:10), selected=7)
                                  , sliderInput("nClass", 'Number of ECs (default = 7)', min=2, max=10, value = 7)
                                  , textInput("analysis", "Analysis Title:", value = "GSECA")
                                  , selectInput("gs_dataset", "Select MsigDB GeneSet:",choices = list('Hallmark (H)'='h.all.v6.0.symbols.gmt',
@@ -56,20 +51,12 @@ shinyUI(
                                                                                                      'Immunological signatures (C7)'='c7.all.v6.0.symbols.gmt')
                                                ,selected = 'c2.cp.kegg.v6.0.symbols.gmt')
 
-                                # , selectInput("stat.test", 'Statistical Test', choices=c( "Fisher's Exact Test"='fisher'
-                                #                                                         ,"Chi-Square Test"='chisq'
-                                #                                                         ), selected='fisher')
-                                # 
                                 , selectInput("correction", 'Multiple test correction', choices=c( "Bonferroni"="bonferroni"
                                                                                           ,"FDR"='fdr'), selected='fdr')
                                 , textInput("p.adj", "Adjusted p-value cutoff",value = 0.05)
 
-                                # , textInput("pw_sim", "Power - Number of simulation:",value = 100)
-                                #  CPUs=3
-                                #
                                  , checkboxInput("customGS", label = tags$b("Use Custom Gene Set"), value = FALSE)
                                  , conditionalPanel(condition = "input.customGS == true",fileInput('gene_set', label = NULL,accept = c('Gene Matrix Transposed','.gmt'))),
-                                 # radioButtons("genome","Genome for Monte Carlo",choices=c("HG19","HG38"),selected="HG19",inline = TRUE),
                                  selectInput("empirical", 'Empirical P-Value', choices=c("True","False"), selected="False"),
                                  selectInput("bootstrapping", 'Bootstrapping Sample Size', choices=c("True","False"), selected="False"),
                                  numericInput("nsim", "Number of random sampling (Monte Carlo or Bootstrapping)", value=1000),
@@ -77,8 +64,6 @@ shinyUI(
                                  actionButton("submit", "Run GSECA", class = "btn-primary"),
                                  downloadButton('downloadData', 'Download Results'),
                                  p("")
-                                 # p("Download the example cohorts A and B:"),
-                                 # downloadButton('downloadExample', 'Download Example Datasets')
                                ),
 
                         # MAIN PANEL
@@ -87,7 +72,6 @@ shinyUI(
                           tabsetPanel(
                               tabPanel('Results',   DT::dataTableOutput('gseca_results'))
                             , tabPanel("EnrichmentClass Map",    plotOutput("gseca_heatmap", width = "100%"))
-                            # , tabPanel("Score",      plotOutput("gseca_score",height = "1000px"))
                           )
                          )
                        )

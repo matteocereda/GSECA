@@ -127,7 +127,7 @@ create.output.folder <- function (s, odir) {
 }
 
 get.gene.set <- function(ix) {
-  paste0("../gene_sets/msigdb/",ix)
+  paste0("gene_sets/msigdb/",ix)
 }
 
 # STATS ===========

@@ -3,22 +3,13 @@
 
 
 
-## 1. General Notes and How to cite GSECA
+## General Notes and How to cite GSECA
 
 
 [GSECA]() is a R application with a Shiny web interface that allows its execution from a web-based environment (section 5). The stand-alone version is also supported, to be run from R GUI (section 6) or from UNIX shell (section 7). Examples on how to use GSECA are provided (section 8).
 
 
-## 2. GNU General Public License
-
-GSECA is a free software that can be redistributed and/or modified under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version.
-
-This software is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License for more details.
-
-You should receive a copy of the GNU General Public License along with the program. If not, please refer to <http://www.gnu.org/licenses/>.
-
-
-## 3. GSECA description
+## GSECA description
 
 [GSECA]() is an **R** software that implements Gene Set Enrichment Class Analysis to detect deregulated biological processes in heterogeneous dataset using RNA sequencing experiments. Given two cohorts ( Cases / Controls ), the algorithm follows three main steps:
 
@@ -31,7 +22,7 @@ You should receive a copy of the GNU General Public License along with the progr
 GSECA provides to the user a graphical overview of the variation of expression of each gene set across the seven classess between the two cohorts. The deregulated gene sets are visualized as EC map (see below image). The EC maps display the difference of the cumulative proportion of genes of a gene set in the seven ECs between the two cohorts as triangles, whose size is proportional to such difference. Furthermore, the upper and the lower vertex of the triangles represent enrichment and depletion in the cohort A as compared to B, respectively. Finally, GSECA orders AGSs accordingly to their ES (SR and emprical P-values, if calculated), thus obtaining the list of the most altered processes in the phenotype of interest. 
 
 
-## 4. Usage
+## Usage
 
 GSECA requires as input files:
 
@@ -57,7 +48,7 @@ library(shiny)
 shiny::runGitHub('matteocereda/GSECA', subdir="Shiny")
 ```
 
-## 6. How to run GSECA as a stand-alone app
+## How to run GSECA as a stand-alone app
 
 
 Clone the repository on your local machine and open R from the repository folder. To run the Shiny App, use:
