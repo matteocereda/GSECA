@@ -20,10 +20,16 @@ pkgs <- c( 'ggrepel'
            ,'RColorBrewer'
            ,'metap'
            ,'ComplexHeatmap'
-           , 'circlize'
+           ,'circlize'
 )
 
 not_installed <- which( ! pkgs %in% rownames(installed.packages()) )
+
+if(any(grepl('ComplexHeatmap', not_installed))) {
+  source("http://bioconductor.org/biocLite.R")
+  biocLite('ComplexHeatmap')
+}
+
 if(length(not_installed)>0){
   for(i in not_installed) install.packages(pkgs[i])
 }
@@ -356,7 +362,7 @@ GMM_posterior <- function(x
   st2 = 0
   
   while( (threshold_1>threshold_2) | ( lambda2 - lambda1 <= 0.1 ) ) {
-    
+    set.seed(30580)
     normMix <- normalmixEM(  x$log_value
                              , mu      = perc
                              , k       = nm_k
@@ -1330,7 +1336,7 @@ GSECA.ECmap = function( gseca
   if(length(sel)==0| is.null(sel)) stop(message("No enriched gene sets"))
   
   if( toprank!=0 ) {
-    toprank = ifelse(toprank>length(sel), lenght(sel), toprank)
+    toprank = ifelse(toprank>length(sel), length(sel), toprank)
     sel = sel[1:toprank]
   }
 
