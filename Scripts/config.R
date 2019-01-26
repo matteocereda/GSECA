@@ -1001,7 +1001,7 @@ GSECA.Bootstrap.empirical <- function( rna, obs.gseca, pl
 ){
   
   boot <- unique(rna$mixture_model[,c('SampleID','type')])
-  
+  set.seed(30580)
   samples <- 1:NSIM
   samples <- lapply(samples, 
                     function(x,y,z) data.frame(barcode=z,type=sample(y))
@@ -1071,13 +1071,15 @@ GSECA.Bootstrap.sample_size <- function( rna, obs.gseca, pl
     
     message("GSECA.Bootstrap Bootstrapping ...")
     
-    r <- foreach(i=1:NSIM) %do% {
+    set.seed(30580)
+    r <- lapply(1:NSIM, function(i) {
       sample_barcode = vector(mode = "numeric", length = 2*sample.size)
       sample_barcode[1:sample.size] = pheno[[size.idx]]
       sample_barcode[(sample.size+1):length(sample_barcode)] = sample(pheno[[ref.idx]]
                                                                       , length(pheno[[size.idx]]))
       return(sample_barcode)
-    }
+    })
+
     
     functionsToCluster <- as.character(lsf.str(envir = .GlobalEnv))
     dataToCluster      <- ls()
