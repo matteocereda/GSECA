@@ -21,7 +21,7 @@ shinyServer(function(input, output) {
               M             = read.delim(input$exp_matrix$datapath, header=T, stringsAsFactors = F)
               L             = read.delim(input$sample_labels$datapath, header=T, stringsAsFactors = F)[,1]
               symbol        = input$symbol
-              nClass        = input$nClass
+              # nClass        = input$nClass
               gene.set.path = ifelse(!input$customGS,get.gene.set(input$gs_dataset),input$gene_set$datapath)
               geneset       = read.gmt.file(gene.set.path)
               s.test        = "fisher" #input$stat.test
@@ -49,7 +49,7 @@ shinyServer(function(input, output) {
                             , s.test     = s.test
                             , correction = correction 
                             , p_adj_th   = p_adj_th
-                            , nClass     = nClass
+                            # , nClass     = nClass
                             , analysis   = analysis
                             , outdir     = outdir
                             , N.CORES    = cpus
@@ -109,7 +109,7 @@ shinyServer(function(input, output) {
 
         upViewport()
       
-        grid.text("GSECA v.1 2018", vp = viewport(layout.pos.row = 4, layout.pos.col = 1:4), just="center")
+        grid.text("GSECA v.1 2019", vp = viewport(layout.pos.row = 4, layout.pos.col = 1:4), just="center")
 
       })
   })

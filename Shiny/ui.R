@@ -27,7 +27,7 @@ shinyUI(
                                                                                "HUGO symbol"= "symbol"
                                                                                
                                  ), selected="symbol")
-                                 , sliderInput("nClass", 'Number of ECs (default = 7)', min=2, max=10, value = 7)
+                                 # , sliderInput("nClass", 'Number of ECs (default = 7)', min=2, max=10, value = 7)
                                  , textInput("analysis", "Analysis Title:", value = "GSECA")
                                  , selectInput("gs_dataset", "Select MsigDB GeneSet:",choices = list('Hallmark (H)'='h.all.v6.0.symbols.gmt',
                                                                                                      'Positional (C1)'='c1.all.v6.0.symbols.gmt',

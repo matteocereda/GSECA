@@ -85,15 +85,13 @@ res = GSECA_executor(  M
                      , outdir = "Results"
                      , analysis = "PTEN"
                      , p_adj_th = 0.1
-                     , nClass = 7
                      , N.CORES = 2
                      , EMPIRICAL = T
                      , BOOTSTRP = T
                      , nsim = 2
-                     , PSUMLOG = 0.25
-                     , PADJ    = 0.1
+                     , AS = 0.25
                      , PEMP    = 1
-                     , SRATE   = 0.7
+                     , SR   = 0.7
                      , toprank = 20
 )
 

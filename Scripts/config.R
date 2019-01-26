@@ -136,6 +136,8 @@ get.gene.set <- function(ix) {
   paste0("gene_sets/msigdb/",ix)
 }
 
+today=function() format(Sys.time(), "%y%m%d")
+
 # STATS ===========
 # Functions for computing statistics
 get_padj <- function(cor) {
@@ -432,66 +434,17 @@ assignToComp <- function(x, ne=T, posterior_cutoff=.9)
   return(x)
 }
 
-setExpressionClass2 <- function(x, ...) 
+
+
+set_expression_class_on_posterior <- function(x
+                                              , posterior_cutoff=.9
+                                              , nClass=7) 
 {
-  # Define 2 expression classes
-  message(" -- # 2 classes (LE, HE)")
-  x$expr_class <- with(x, ifelse(comp.2 > comp.1, "HE","LE" ) )
-  x$expr_class <- factor(x$expr_class, levels=c("LE","HE"))
-  
+  setFunc <- get(grep(nClass, ls(pos = 1), value = T))
+  x <- setFunc(x, posterior_cutoff)
   return(x)
 }
 
-setExpressionClass3 <- function(x, ...) 
-{
-  # Define 3 expression classes
-  message(" -- # 3 classes (LE, ME, HE)")
-  x <- assignToComp(x, ne=F, ...)
-  
-  x$expr_class = factor(x$expr_class, levels=c("LE","ME","HE"))
-  
-  return(x)
-}
-
-setExpressionClass4 <- function(x, ...) 
-{
-  # Define 4 expression classes
-  message(" -- # 4 classes (NE, LE, ME, HE)")
-  x <- assignToComp(x, ne=T, ...)
-  
-  x$expr_class = factor(x$expr_class, levels=c("NE","LE","ME","HE"))
-  
-  return(x)
-}
-
-setExpressionClass5 <- function(x, ...) 
-{
-  # Define 5 expression classes
-  message(" -- # 5 classes (NE, LE, ME, HE1, HE2)")
-  x <- assignToComp(x, ne=T, ...)
-  
-  qt = quantile(subset(x, expr_class=='HE')$log_value)
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value<qt["50%"]  ) ] = 'HE1'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt["50%"] ) ] = 'HE2'
-  x$expr_class = factor(x$expr_class, levels=c("NE","LE","ME","HE1","HE2"))
-  
-  return(x)
-}
-
-setExpressionClass6 <- function(x, ...) 
-{
-  # Define 6 expression classes
-  message(" -- # 6 classes (NE, LE, ME, HE1, HE2, HE3)")
-  x <- assignToComp(x, ne=T, ...)
-  
-  qt = quantile(subset(x, expr_class=='HE')$log_value, seq(0,1,0.01))
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value<qt["33%"]  ) ] = 'HE1'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt["33%"] & x$log_value<qt["66%"]) ] = 'HE2'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt["66%"] ) ] = 'HE3'
-  x$expr_class = factor(x$expr_class, levels=c("NE","LE","ME","HE1","HE2","HE3"))
-  
-  return(x)
-}
 
 setExpressionClass7 <- function(x, ...)
 {
@@ -508,85 +461,6 @@ setExpressionClass7 <- function(x, ...)
   
   x$expr_class = factor(x$expr_class, levels = c('NE','LE','ME','HE1','HE2','HE3','HE4'))
   
-  return(x)
-}
-
-setExpressionClass8 <- function(x, ...)
-{
-  # Define 8 expression classes
-  message(" -- # 8 classes (NE, LE1, LE2, ME, HE1, HE2, HE3, HE4)")
-  x <- assignToComp(x, ne=T, ...)
-  
-  qt = quantile(subset(x, expr_class=='HE')$log_value)
-  
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value<=qt["25%"] ) ] = 'HE1'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt["25%"] & x$log_value<=qt["50%"]) ] = 'HE2'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt["50%"] & x$log_value<=qt["75%"]) ] = 'HE3'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt["75%"] ) ] = 'HE4'
-  
-  qt = quantile(subset(x, expr_class=='LE')$log_value)
-  x$expr_class [ which(x$expr_class=='LE' & x$log_value<qt["50%"]  ) ] = 'LE1'
-  x$expr_class [ which(x$expr_class=='LE' & x$log_value>=qt["50%"] ) ] = 'LE2'
-  
-  x$expr_class = factor(x$expr_class, levels = c('NE','LE1',"LE2", 'ME','HE1','HE2','HE3','HE4'))
-  
-  return(x)
-  
-}
-
-setExpressionClass9 <- function(x, ...)
-{
-  # Define 9 expression classes
-  message(" -- # 9 classes (NE, LE1, LE2, ME1, ME2, HE1, HE2, HE3, HE4)")
-  x <- assignToComp(x, ne=T, ...)
-  
-  qt = quantile(subset(x, expr_class=='LE')$log_value)
-  x$expr_class [ which(x$expr_class=='LE' & x$log_value<qt["50%"]  ) ] = 'LE1'
-  x$expr_class [ which(x$expr_class=='LE' & x$log_value>=qt["50%"] ) ] = 'LE2'
-  qt = quantile(subset(x, expr_class=='ME')$log_value)
-  x$expr_class [ which(x$expr_class=='ME' & x$log_value<qt["50%"]  ) ] = 'ME1'
-  x$expr_class [ which(x$expr_class=='ME' & x$log_value>=qt["50%"] ) ] = 'ME2'
-  
-  x$expr_class = factor(x$expr_class, levels = c('NE','LE1',"LE2", 'ME1', 'ME2', 'HE1','HE2','HE3','HE4'))
-  
-  return(x)
-}
-
-setExpressionClass10 <- function(x, ...)
-{
-  # Define 10 expression classes
-  message(" -- # 10 classes (NE, LE1, LE2, ME1, ME2, HE1, HE2, HE3, HE4, HE5)")
-  x <- assignToComp(x, ne=T, ...)
-  
-  # LE
-  qt = quantile(subset(x, expr_class=='LE')$log_value)
-  x$expr_class [ which(x$expr_class=='LE' & x$log_value<qt["50%"]  ) ] = 'LE1'
-  x$expr_class [ which(x$expr_class=='LE' & x$log_value>=qt["50%"] ) ] = 'LE2'
-  
-  # HE
-  qt = quantile(subset(x, expr_class=='HE')$log_value, seq(0,1,length.out = 6))
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value<=qt[2] ) ] = 'HE1'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt[2] & x$log_value<=qt[3]) ] = 'HE2'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt[3] & x$log_value<=qt[4]) ] = 'HE3'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt[4] & x$log_value<=qt[5]) ] = 'HE4'
-  x$expr_class [ which(x$expr_class=='HE' & x$log_value>=qt[5] ) ] = 'HE5'
-  # ME
-  qt = quantile(subset(x, expr_class=='ME')$log_value)
-  x$expr_class [ which(x$expr_class=='ME' & x$log_value<qt["50%"]  ) ] = 'ME1'
-  x$expr_class [ which(x$expr_class=='ME' & x$log_value>=qt["50%"] ) ] = 'ME2'
-  
-  
-  x$expr_class = factor(x$expr_class, levels = c('NE','LE1',"LE2", 'ME1', "ME2", 'HE1','HE2','HE3','HE4','HE5') )
-  
-  return(x)
-}
-
-set_expression_class_on_posterior <- function(x
-                                              , posterior_cutoff=.9
-                                              , nClass=7) 
-{
-  setFunc <- get(grep(nClass, ls(pos = 1), value = T))
-  x <- setFunc(x, posterior_cutoff)
   return(x)
 }
 
@@ -887,7 +761,7 @@ GSECA <- function(  pl
     
     x$sig = x$p.adj<=cutoff
     
-    x <- x[,c("gene_set","expr_class","CASE.N.class",
+       x <- x[,c("gene_set","expr_class","CASE.N.class",
               "CASE.N.rest","CNTR.N.class","CNTR.N.rest",
               "CASE.P","CNTR.P", "delta","direction","pv",
               "or", "p.adj", "sig",'rank',"sumlog")]
@@ -896,6 +770,12 @@ GSECA <- function(  pl
   })
   
   core <- unrowname(do.call(rbind, core))
+  
+  # colnames(core) <- c("gene_set","expr_class","CASE.N.class",
+  #           "CASE.N.rest","CNTR.N.class","CNTR.N.rest",
+  #           "CASE.P","CNTR.P", "delta","direction","pv",
+  #           "or", "p.adj", "sig",'rank',"as")
+
   return(core)
 }
 
@@ -940,6 +820,45 @@ orderGSECA <- function(x, PSUMLOG, PEMP=NA, SRATE=NA){
   return(y)
 }
 
+GSECAordering <- function(x, ASCORE, PEMP=NA, SRATE=NA){
+  
+  # Rank pathways using 3 metrics:
+  # AS, SR and emprical P-Value
+  # for GSECA only 
+  
+  y = unique(x[,c('gene_set','as','sr','p.emp')])
+
+  if(!is.na(PEMP) & !is.na(SRATE)){
+    
+    y$sig = y$as<=ASCORE & y$p.emp<=PEMP & y$sr>=SRATE
+    
+    y=y[order(1-y$sig, y$as,  y$p.emp, 1-y$sr,  decreasing = F),]
+    
+    y$rank = 1:nrow(y)
+    
+  }else if(!is.na(PEMP) & is.na(SRATE) ){
+    
+    y$sig = y$as<=ASCORE & y$p.emp<=PEMP 
+    
+    y=y[order(1-y$sig, y$as,  y$p.emp,  decreasing = F),]
+    y$rank = 1:nrow(y)
+    
+  }else if(is.na(PEMP) & !is.na(SRATE)){
+    
+    y$sig = y$as<=ASCORE & y$sr>=SRATE
+    
+    y=y[order(1-y$sig, y$as, 1-y$sr,  decreasing = F),]
+    y$rank = 1:nrow(y)
+    
+  } else {
+    y$sig = y$as<=ASCORE 
+    
+    y=y[order(1-y$sig, y$as, decreasing = F),]
+    y$rank = 1:nrow(y)
+  }
+  
+  return(y)
+}
 # BOOTSTRAPPING ====
 # Implementation of bootstrapping procedures
 # [*] Calculation of empirical P value
@@ -1131,20 +1050,17 @@ GSECA_executor <- function( M
                            , L
                            , symbol
                            , geneset
-                           , s.test = 'fisher'
-                           , tail.test = 'two.sided'
                            , correction = 'fdr'
                            , p_adj_th = 0.1
-                           , nClass = 7
                            , analysis = NULL
                            , outdir = NULL
                            , N.CORES = 3
                            , EMPIRICAL = F
                            , BOOTSTRP = F
                            , nsim = 10
-                           , PSUMLOG = 0.01
+                           , AS = 0.01
                            , PEMP    = 1
-                           , SRATE   = 0.7
+                           , SR   = 0.7
                            , toprank = 0
 ){
   
@@ -1154,12 +1070,12 @@ GSECA_executor <- function( M
   
 
   # 01. Prepare Data 
+  message("[*] loading datasets ...")
   expr <- get_expression_dataset(M, L, symbol)
   geneset <- prepare_pl(geneset, expr)
   
   # 02. MIXTURE MODEL
   expr <- get_mixture_expr_class(expr
-                                 , nClass   = nClass
                                  , ne_value = 0.01
                                  , nc       = N.CORES
   )
@@ -1168,15 +1084,11 @@ GSECA_executor <- function( M
   # 03. GCR 
   gcr  <- gene_class_representation(expr
                                    , pl = geneset
-                                   , method = s.test
-                                   , TAIL = tail.test
   )
   
   # 04. GSECA 
   gseca <- GSECA(  pl=geneset
                   , gcr
-                  , method = s.test # fisher
-                  , TAIL = tail.test
                   , correction = correction
                   )
   
@@ -1191,8 +1103,6 @@ GSECA_executor <- function( M
                                            , pl = geneset
                                            , NSIM = nsim
                                            , nc = N.CORES
-                                           , method = s.test
-                                           , TAIL = tail.test
                                            , correction = correction
                                            , cutoff = 0.01
     ) 
@@ -1214,8 +1124,6 @@ GSECA_executor <- function( M
                                               , phen = c("CASE","CNTR")
                                               , NSIM = nsim
                                               , nc = N.CORES
-                                              , method = s.test
-                                              , TAIL = tail.test
                                               , correction = correction
                                               , cutoff = 0.01
     ) 
@@ -1228,16 +1136,16 @@ GSECA_executor <- function( M
                                                          gseca.boot$gene_set)]
     }
   
-  
+  colnames(gseca)[c(16,18)] <- c("as", "sr")
   
   if( !is.null(analysis) & !is.null(outdir)  ) {
     
     analysis <- create.output.folder(analysis, outdir) 
     
-    outfig <- paste0(analysis,"/ECmap.psumlog_",PSUMLOG,
+    outfig <- paste0(analysis,"/ECmap.as_",AS,
                      "_padj_",p_adj_th,
                      "_pemp_",PEMP,
-                     "_srate_",SRATE,".pdf") 
+                     "_srate_",SR,".pdf") 
     
     # Results 
     message(paste0("Saving files in folder: ", analysis))
@@ -1252,9 +1160,9 @@ GSECA_executor <- function( M
   ecmap <- tryCatch(GSECA.ECmap( gseca
                        , filename=outfig
                        , p_adj = p_adj_th
-                       , psumlog=PSUMLOG
+                       , ascore=AS
                        , pemp = PEMP
-                       , srate=SRATE
+                       , srate=SR
                        , toprank = toprank )
                     , error=function(e) return(NULL))
 
@@ -1312,22 +1220,21 @@ anno_bimodal = function() {
 GSECA.ECmap = function( gseca
                         , filename=NULL
                         , p_adj=0.1
-                        , psumlog=1
-                        , pemp=NULL
-                        , srate=NULL
+                        , AS=1      # Association score threshold
+                        , pemp=NULL # Empiricial p-value threshold
+                        , SR=NULL   # Success rate threshold
                         , toprank=0
                                 
 ){
 
   require(RColorBrewer)
 
-  message("Thresholds: \nP-value adj ",p_adj,"\nP-value sumlog ",psumlog,"\n")
+  message("Thresholds: \nP-value adj ",p_adj,"\nAssociation score ",AS,"\n")
   
-  # browser()
   pemp  = ifelse(sum(is.na(unique(gseca$p.emp)))==0, pemp, NA)
-  srate = ifelse(sum(is.na(unique(gseca$success_rate)))==0, srate, NA)
+  SR = ifelse(sum(is.na(unique(gseca$sr)))==0, SR, NA)
   
-  sbs = subset( orderGSECA(subset(gseca,p.adj<=p_adj), psumlog, pemp, srate ) , sig)
+  sbs = subset( GSECAordering(subset(gseca,p.adj<=p_adj), AS, pemp, SR ) , sig)
 
   if(nrow(sbs)==0){
     message("NO altered gene sets")
@@ -1346,13 +1253,13 @@ GSECA.ECmap = function( gseca
   toplot$p.adj[ which(toplot$p.adj>p_adj) ]=NA
   toplot$gene_set = fix_names(toplot$gene_set)
 
-  score = unique(toplot[,c('gene_set','sumlog','p.emp','success_rate')])
+  score = unique(toplot[,c('gene_set','as','p.emp','sr')])
   
   gs_order = score[order(score[,2],decreasing = F),'gene_set']
 
   toplot$gene_set = factor(toplot$gene_set, levels=gs_order)
   score$gene_set = factor(score$gene_set, levels=gs_order)
-  # browser()
+
   ECmap  = dcast(data = toplot, gene_set~expr_class, value.var = 'p.adj' ); rownames(ECmap)  = ECmap[,1];  ECmap  = ECmap[,-1]
   ECmap2 = dcast(data = toplot, gene_set~expr_class, value.var = 'delta' ); rownames(ECmap2) = ECmap2[,1]; ECmap2 = ECmap2[,-1]
   ECmap3 = dcast(data = toplot, gene_set~expr_class, value.var = 'CASE.P' ); rownames(ECmap3) = ECmap3[,1]; ECmap3 = ECmap3[,-1]
@@ -1423,12 +1330,12 @@ GSECA.ECmap = function( gseca
   )
   
   
-  if(!is.na(srate) & length(unique(score[match(rownames(ECmap), score$gene_set), "success_rate"]))>1){
+  if(!is.na(SR) & length(unique(score[match(rownames(ECmap), score$gene_set), "sr"]))>1){
     row_ha = rowAnnotation(
-      ES = row_anno_barplot(matrix(-10*log10(score[match(rownames(ECmap), score$gene_set), "sumlog"])), 
+      AS = row_anno_barplot(matrix(-10*log10(score[match(rownames(ECmap), score$gene_set), "as"])), 
                             axis = TRUE,  border = T, axis_side = "bottom", 
                             gp = gpar(fill = c("black")), bar_width = 0.6)
-      , SR = row_anno_barplot(matrix(score[match(rownames(ECmap), score$gene_set), "success_rate"]), 
+      , SR = row_anno_barplot(matrix(score[match(rownames(ECmap), score$gene_set), "sr"]), 
                              axis = TRUE, border = T, axis_side = "bottom", 
                              gp = gpar(fill = c("black")), bar_width = 0.6)
       , gap = unit(c(2, 4), "mm")
@@ -1440,7 +1347,7 @@ GSECA.ECmap = function( gseca
     )
   } else {
     row_ha = rowAnnotation(
-      ES = row_anno_barplot(matrix(-10*log10(score[match(rownames(ECmap), score$gene_set), "sumlog"])), 
+      AS = row_anno_barplot(matrix(-10*log10(score[match(rownames(ECmap), score$gene_set), "as"])), 
                            axis = TRUE,  border = T, axis_side = "bottom", 
                            gp = gpar(fill = c("black")), bar_width = 0.6)  
       , gap = unit(c(2, 4), "mm")
@@ -1484,7 +1391,6 @@ GSECA.ECmap = function( gseca
   
   if(!is.null(filename)){
     pdf(file=filename,  paper = "a4", useDingbats = F)
-  
     grid.newpage()
     pushViewport(viewport(layout=grid.layout(  nrow=4, heights = c(.05, .8, .1, .05)
                                              , ncol=6, widths  = c( .05, .1, 3.5, 3.5, .1, .05 ))))
