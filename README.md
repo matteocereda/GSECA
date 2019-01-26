@@ -2,7 +2,6 @@
 
 
 
-
 ## General Notes and How to cite GSECA
 
 
@@ -26,7 +25,7 @@ GSECA provides to the user a graphical overview of the variation of expression o
 
 GSECA requires as input files:
 
--  Gene expression matrix (".tsv", tab separated): matrix of normalized gene expression levels from RNA-seq experiments. Rows represent genes, columns represent samples and the corresponding expression levels. The first column must contain gene symbols, thus the first row must contain the label "symbol" followed by sample identifiers (e.g. barcodes). The number of classes (set to 7 by default, as reported in GSECA paper) and the gene id (HUGO symbol, ENSEMBL gene id) must be indicated in the related fields of the Shiny app or as parameters in the R function `GSECA_executor()`.
+-  Gene expression matrix (".tsv", tab separated): matrix of normalized gene expression levels from RNA-seq experiments. Rows represent genes, columns represent samples and the corresponding expression levels. The first column must contain gene symbols, thus the first row must contain the label "symbol" followed by sample identifiers (e.g. barcodes). 
 
 -  Sample type labels (".tsv", tab separated): an ordered list of phenotype labels (CASE / CNTR), one per row matching the order of samples given in the gene expression matrix. The first row must contain the label "x".
 
