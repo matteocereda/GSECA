@@ -1157,12 +1157,13 @@ GSECA_executor <- function( M
     outfig <- NULL
   }
   
+  message("[*] EC Map generation ...")
   ecmap <- tryCatch(GSECA.ECmap( gseca
                        , filename=outfig
                        , p_adj = p_adj_th
-                       , ascore=AS
+                       , AS=AS
                        , pemp = PEMP
-                       , srate=SR
+                       , SR=SR
                        , toprank = toprank )
                     , error=function(e) return(NULL))
 

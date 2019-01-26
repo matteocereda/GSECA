@@ -94,11 +94,7 @@ res = GSECA_executor(  M
                      , SR   = 0.7
                      , toprank = 20
 )
-
-
-
 ```
-![](www/GSECA.PRAD.png)
 
 ## Contributors
 
