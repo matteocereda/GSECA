@@ -824,8 +824,7 @@ GSECAordering <- function(x, ASCORE, PEMP=NA, SRATE=NA){
   
   # Rank pathways using 3 metrics:
   # AS, SR and emprical P-Value
-  # for GSECA only 
-  
+
   y = unique(x[,c('gene_set','as','sr','p.emp')])
 
   if(!is.na(PEMP) & !is.na(SRATE)){
@@ -1234,6 +1233,9 @@ GSECA.ECmap = function( gseca
   
   pemp  = ifelse(sum(is.na(unique(gseca$p.emp)))==0, pemp, NA)
   SR = ifelse(sum(is.na(unique(gseca$sr)))==0, SR, NA)
+  
+  tmp = grep("sumlog",colnames(gseca))
+  if(length(tmp)>0) colnames(gseca)[tmp]="as"
   
   sbs = subset( GSECAordering(subset(gseca,p.adj<=p_adj), AS, pemp, SR ) , sig)
 
