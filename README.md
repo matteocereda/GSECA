@@ -32,21 +32,6 @@ GSECA requires as input files:
 -  Gene sets (".gmt" file): the list of gene sets to be tested. It can be predefined by the user, or selected from a collection of pre-processed gene sets of biological pathways and diseases included in the Shiny app.
 
 
-## How to run GSECA as a R shiny app in your browser
-
-
-Install the **Shiny** package (and the required dependencies) in R, and use the function `runGithub()`. See the example below,
-```
-install.packages("shiny")
-install.packages("shinyjs")
-install.packages("shinythemes")
-install.packages("DT")
-
-library(shiny)
-
-shiny::runGitHub('matteocereda/GSECA', subdir="Shiny")
-```
-
 ## How to run GSECA as a stand-alone app
 
 
@@ -95,14 +80,27 @@ res = GSECA_executor(  M
                      , toprank = 20
 )
 ```
+## How to run GSECA as a R shiny app in your browser
+
+
+Install the **Shiny** package (and the required dependencies) in R, and use the function `runGithub()`. See the example below,
+```
+install.packages("shiny")
+install.packages("shinyjs")
+install.packages("shinythemes")
+install.packages("DT")
+
+library(shiny)
+
+shiny::runGitHub('matteocereda/GSECA', subdir="Shiny")
+```
 
 ## Contributors
 
-GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria
+GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria, Serena Peirone and Marco Del Giudice
 
 Main developer: Matteo Cereda and Andrea Lauria. 
-
-Contributing developers: None.
+Contributing developers: Serena Peirone and Marco Del Giudice.
 
 Contributions are always welcome!
 
