@@ -39,7 +39,6 @@ Clone the repository on your local machine and open R from the repository folder
 
 ```
 git lfs clone https://github.com/matteocereda/GSECA.git
-
 ```
 
 To use GSECA functions, load source the file `Scripts/config.R` in the R Global Environment:
@@ -106,7 +105,7 @@ shiny::runGitHub('matteocereda/GSECA', subdir="Shiny")
 
 ## Contributors
 
-GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria, Serena Peirone and Marco Del Giudice
+GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria, Serena Peirone and Marco Del Giudice.
 
 Main developer: Matteo Cereda and Andrea Lauria. 
 
