@@ -35,9 +35,11 @@ GSECA requires as input files:
 ## How to run GSECA as a stand-alone app
 
 
-Clone the repository on your local machine and open R from the repository folder. To run the Shiny App, use:
+Clone the repository on your local machine and open R from the repository folder. 
+
 ```
-shiny::runApp("Shiny")
+git lfs clone https://github.com/matteocereda/GSECA.git
+
 ```
 
 To use GSECA functions, load source the file `Scripts/config.R` in the R Global Environment:
@@ -80,6 +82,13 @@ res = GSECA_executor(  M
                      , toprank = 20
 )
 ```
+
+To run the Shiny App, use:
+```
+shiny::runApp("Shiny")
+```
+
+
 ## How to run GSECA as a R shiny app in your browser
 
 
@@ -100,6 +109,7 @@ shiny::runGitHub('matteocereda/GSECA', subdir="Shiny")
 GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria, Serena Peirone and Marco Del Giudice
 
 Main developer: Matteo Cereda and Andrea Lauria. 
+
 Contributing developers: Serena Peirone and Marco Del Giudice.
 
 Contributions are always welcome!
