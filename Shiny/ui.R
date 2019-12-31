@@ -25,9 +25,8 @@ shinyUI(
                                  , fileInput('sample_labels', 'Sample type labels (tab-separated file)*', accept = c('text/tab-separated-values', c('.tsv','.gz') ))
                                  , selectInput("symbol", 'Gene ID', choices=c( "ENSEMBL Gene Id"="ensembl_gene_id",
                                                                                "HUGO symbol"= "symbol"
-                                                                               
+
                                  ), selected="symbol")
-                                 # , sliderInput("nClass", 'Number of ECs (default = 7)', min=2, max=10, value = 7)
                                  , textInput("analysis", "Analysis Title:", value = "GSECA")
                                  , selectInput("gs_dataset", "Select MsigDB GeneSet:",choices = list('Hallmark (H)'='h.all.v6.0.symbols.gmt',
                                                                                                      'Positional (C1)'='c1.all.v6.0.symbols.gmt',
@@ -50,20 +49,24 @@ shinyUI(
                                                                                                      'Oncogenic signatures (C6)'='c6.all.v6.0.symbols.gmt',
                                                                                                      'Immunological signatures (C7)'='c7.all.v6.0.symbols.gmt')
                                                ,selected = 'c2.cp.kegg.v6.0.symbols.gmt')
-
+                                 , checkboxInput("customGS", label = tags$b("Use Custom Gene Set"), value = FALSE)
+                                 , conditionalPanel(condition = "input.customGS == true",fileInput('gene_set', label = NULL,accept = c('Gene Matrix Transposed','.gmt')))
                                 , selectInput("correction", 'Multiple test correction', choices=c( "Bonferroni"="bonferroni"
                                                                                           ,"FDR"='fdr'), selected='fdr')
-                                , textInput("p.adj", "Adjusted p-value cutoff",value = 0.05)
+                                , textInput("p.adj", "Adjusted p-value cutoff",value = 0.1)
 
-                                 , checkboxInput("customGS", label = tags$b("Use Custom Gene Set"), value = FALSE)
-                                 , conditionalPanel(condition = "input.customGS == true",fileInput('gene_set', label = NULL,accept = c('Gene Matrix Transposed','.gmt'))),
-                                 selectInput("empirical", 'Empirical P-Value', choices=c("True","False"), selected="False"),
-                                 selectInput("bootstrapping", 'Bootstrapping Sample Size', choices=c("True","False"), selected="False"),
-                                 numericInput("nsim", "Number of random sampling (Monte Carlo or Bootstrapping)", value=1000),
-                                 p("Mandatory fields are marked with *"),
-                                 actionButton("submit", "Run GSECA", class = "btn-primary"),
-                                 downloadButton('downloadData', 'Download Results'),
-                                 p("")
+                                 , selectInput("empirical", 'Empirical P-Value', choices=c("True","False"), selected="False")
+                                , selectInput("bootstrapping", 'Bootstrapping Sample Size', choices=c("True","False"), selected="False")
+                                , numericInput("nsim", "Number of random sampling (Monte Carlo or Bootstrapping)", value=1000)
+                                , numericInput("AS", "AS threshold", value=0.25)
+                                , numericInput("PEMP", "p.emp threshold", value=1)
+                                , numericInput("SR", "success rate threshold", value=0.7)
+                                , numericInput("toprank", "top ranked pathways", value=10)
+
+                                 ,p("Mandatory fields are marked with *")
+                                 ,actionButton("submit", "Run GSECA", class = "btn-primary")
+                                 ,downloadButton('downloadData', 'Download Results')
+                                 ,p("")
                                ),
 
                         # MAIN PANEL
@@ -78,8 +81,8 @@ shinyUI(
              ),
 
              tabPanel("Help",
-                      titlePanel("Help page"),
-                      includeMarkdown("../README.md")
+                      titlePanel("Help page")
+                      # ,includeMarkdown("README.md")
              )
 
     )

@@ -23,7 +23,7 @@ res = GSECA_executor(  M # Gene Expression matrix
                      , AS = 0.25 # AS threshold
                      , PEMP = 1 # p.emp threshold
                      , SR   = 0.7 # success rate threshold
-                     , toprank = 10 # success rate threshold
+                     , toprank = 10 # top ranked pathways
                      , iphen = c("CASE", "CNTR") #  phenotype lables
 )
 

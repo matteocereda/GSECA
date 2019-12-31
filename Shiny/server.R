@@ -13,18 +13,16 @@ options(shiny.maxRequestSize = 30*1024^2)
 options(scipen=3)
 
 shinyServer(function(input, output) {
-      
+
   current = reactiveValues(res =NULL)
-      
+
       RUN_GSECA = eventReactive(input$submit, {
-        
+
               M             = read.delim(input$exp_matrix$datapath, header=T, stringsAsFactors = F)
               L             = read.delim(input$sample_labels$datapath, header=T, stringsAsFactors = F)[,1]
               symbol        = input$symbol
-              # nClass        = input$nClass
               gene.set.path = ifelse(!input$customGS,get.gene.set(input$gs_dataset),input$gene_set$datapath)
               geneset       = read.gmt.file(gene.set.path)
-              s.test        = "fisher" #input$stat.test
               correction    = input$correction
               p_adj_th      = input$p.adj
               empirical     = input$empirical=="True"
@@ -32,34 +30,40 @@ shinyServer(function(input, output) {
               analysis      = input$analysis
               nsim          = input$nsim
               outdir        = "Results"
-              
+              AS            = input$AS
+              PEMP          = input$PEMP
+              SR            = input$SR
+              toprank       = input$toprank
               cpus = detectCores()
-              
-              if (!is.null(cpus)) 
+
+              if (!is.null(cpus))
                 {
                   cpus = cpus - 1
                 } else {
                   cpus = 3
                 }
-              
-              GSECA_executor( M          = M
+
+               GSECA_executor( M          = M
                             , L          = L
                             , symbol     = symbol
                             , geneset    = geneset
-                            , s.test     = s.test
-                            , correction = correction 
+                            , correction = correction
                             , p_adj_th   = p_adj_th
-                            # , nClass     = nClass
                             , analysis   = analysis
                             , outdir     = outdir
                             , N.CORES    = cpus
                             , EMPIRICAL  = empirical
                             , BOOTSTRP   = bootstrapping
-                            , nsim       = nsim )
-        
-                                                
+                            , nsim       = nsim
+                            , AS         = AS
+                            , PEMP       =  PEMP
+                            , SR         = SR
+                            , toprank    = toprank
+                            )
+
+
       })
-            
+
       # TAB results
       output$gseca_results   = DT::renderDataTable({
         results = RUN_GSECA()
@@ -84,31 +88,32 @@ shinyServer(function(input, output) {
         pushViewport(viewport(layout=grid.layout(nrow=4, ncol=6
                                                  , heights=c(.05, .8, .1, .05)
                                                  , widths= c( .025, .3,.2,.2,.2, .025 ))))
-        
+
         # grid.text("GSECA", vp = viewport(layout.pos.row = 1, layout.pos.col = 1:6), gp=gpar(fontface='bold'), just="center")
-        
+
         pushViewport(viewport(layout.pos.row = 2, layout.pos.col = 2:5))
-        
+
         # sink(file='tmp.txt')
-        draw(current$heat, newpage = FALSE)
-        
+        ComplexHeatmap::draw(current$heat, newpage = FALSE)
+
+
         upViewport()
         # sink()
-        
+
         cm = ColorMapping(name = "FDR", col_fun = colorRamp2(c(0, 0.05, 0.1), c("red", "yellow", "blue")))
         pushViewport(viewport(layout.pos.row = 3, layout.pos.col = 2))
         color_mapping_legend(cm, legend_direction='horizontal')
         upViewport()
-        
+
         # m = round(limits[2]*100,0)
         # legLabels <- as.character(c(0.01, round(m/2,1) , m))
         # boxSize <- unit(0.15, "inches")
-        
+
         pushViewport(viewport(layout.pos.row = 3, layout.pos.col = 3:5))
         grid.text(expression(bold(paste(Delta, "(%)"))), x = unit(0.1, "native"), y =  unit(0.5, "native")+ unit(.9, "lines"), gp=gpar(fontface='bold') )
 
         upViewport()
-      
+
         grid.text("GSECA v.1 2019", vp = viewport(layout.pos.row = 4, layout.pos.col = 1:4), just="center")
 
       })
