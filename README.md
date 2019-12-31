@@ -2,7 +2,9 @@
 
 ## General Notes and How to cite GSECA
 
-[GSECA](https://doi.org/10.1093/nar/gkz1208) is a R application with a Shiny web interface. The stand-alone version can be run from R GUI or from UNIX shell. Examples on how to use GSECA are provided below.
+[GSECA](https://doi.org/10.1093/nar/gkz1208) is a R application with a Shiny web interface. The stand-alone version can be run from R GUI or from UNIX shell. Examples on how to use GSECA are provided below. 
+
+For further details please refer to our paper in *Nucleic Acid Research* [here](https://doi.org/10.1093/nar/gkz1208)
 
 ## GSECA description
 
