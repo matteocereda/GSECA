@@ -515,11 +515,8 @@ get_mixture_expr_class <- function(rna
 
 # GENE CLASS REPRESENTATION  ===========
 # Representation of genes per expression classs
-gene_class_representation <- function(r, pl , cutoff = 0.01
-                                      # , method = 'fisher'
-                                      # , TAIL = "two.sided"
-                                      # , correction = 'fdr'
-                                      # , cutoff = 0.01
+gene_class_representation <- function(r, pl, correction = 'fdr' , cutoff = 0.01
+
 ){
   require(plyr)
   require(metap)
@@ -576,7 +573,7 @@ gene_class_representation <- function(r, pl , cutoff = 0.01
 
   cnts <- rbind(cnts, invariant)
   cnts <- dlply(cnts, .(geneID), here(plyr::mutate)
-                , p.adj  = get_padj("fdr")(pv)
+                , p.adj  = get_padj(correction)(pv)
                 , sumlog = suppressWarnings(sumlog(pv)$p)
                 , .progress = 'text'
   )
@@ -647,7 +644,7 @@ GSECArunner <- function(gene_set, geneClass){
   }
 }
 
-GSECA_core <- function(gcr, pl, ncores=3) {
+GSECA_core <- function(gcr, pl, ncores=3, correction='fdr') {
 
   px <- mclapply(pl, GSECArunner
                  , geneClass = gcr
@@ -668,7 +665,7 @@ GSECA_core <- function(gcr, pl, ncores=3) {
 
   # Fisher's method
   px <- dlply(px, .(gene_set), here(plyr::mutate)
-              , p.adj  = get_padj("fdr")(pv)
+              , p.adj  = get_padj(correction)(pv)
               , AS = suppressWarnings(sumlog(pv)$p)
               , .progress = 'text'
   )
@@ -681,12 +678,12 @@ GSECA_core <- function(gcr, pl, ncores=3) {
   return(px)
 }
 
-GSECA <- function(pl, gcr, cutoff = 0.01){
+GSECA <- function(pl, gcr, correction='fdr', cutoff = 0.01){
 
   message(" === Gene Set Enrichment Class Analysis === ")
   message("[*] GSECA core ...")
 
-  core <- GSECA_core(gcr, pl)
+  core <- GSECA_core(gcr, pl, correction = correction)
 
   # Ranking
   core <- lapply(core, function(x) {
@@ -718,7 +715,7 @@ GSECA <- function(pl, gcr, cutoff = 0.01){
 # [*] Calculation of empirical P value
 # [*] Correction for sample size
 
-execute_GSECA_bootstrap <- function(sample,  rna, pl, type='sample.size',cutoff = 0.01){
+execute_GSECA_bootstrap <- function(sample,  rna, pl, type='sample.size', correction="fdr", cutoff = 0.01){
 
   if(type=='p.empirical'){
 
@@ -732,9 +729,9 @@ execute_GSECA_bootstrap <- function(sample,  rna, pl, type='sample.size',cutoff 
     gc()
   }
   rm(sample)
-  dd <- gene_class_representation(rna, pl)
+  dd <- gene_class_representation(rna, pl, correction = correction)
   rm(rna)
-  res <- GSECA(pl, dd, cutoff = cutoff )
+  res <- GSECA(pl, dd, correction = correction, cutoff = cutoff )
   rm(dd)
   rx <- unique(res[,c("gene_set", "AS")])
   rm(res)
@@ -744,6 +741,7 @@ execute_GSECA_bootstrap <- function(sample,  rna, pl, type='sample.size',cutoff 
 GSECA.Bootstrap.empirical <- function( rna, obs.gseca, pl
                                        , NSIM=10
                                        , nc=2
+                                       , correction = "fdr"
                                        , cutoff = 0.01
 ){
 
@@ -763,7 +761,7 @@ GSECA.Bootstrap.empirical <- function( rna, obs.gseca, pl
   sfLibrary(parallel)
   sfClusterSetupRNG()
   l <- sfLapply(samples, function(x){
-    tryCatch(execute_GSECA_bootstrap(sample=x, rna=rna, pl=pl, type='p.empirical', cutoff=cutoff), error = function(x) return(NA))
+    tryCatch(execute_GSECA_bootstrap(sample=x, rna=rna, pl=pl, type='p.empirical', correction=correction, cutoff=cutoff), error = function(x) return(NA))
   })
   sfStop()
 
@@ -774,7 +772,7 @@ GSECA.Bootstrap.empirical <- function( rna, obs.gseca, pl
   return(l)
 }
 
-GSECA.Bootstrap.sample_size <- function( rna, obs.gseca, pl , phen = c("CASE","CNTR"), NSIM=1000, nc=3 , cutoff=0.05){
+GSECA.Bootstrap.sample_size <- function( rna, obs.gseca, pl , phen = c("CASE","CNTR"), NSIM=1000, nc=3 , correction="fdr", cutoff=0.05){
 
   message("GSECA.Bootstrap Create Phenotype lists ...")
 
@@ -807,7 +805,7 @@ GSECA.Bootstrap.sample_size <- function( rna, obs.gseca, pl , phen = c("CASE","C
     sfLibrary(parallel)
     sfClusterSetupRNG()
     l <- sfLapply(r, function(x){
-      tryCatch(execute_GSECA_bootstrap(sample=x, rna=rna, pl=pl, type='sample.size', cutoff=cutoff), error = function(x) return(NA))
+      tryCatch(execute_GSECA_bootstrap(sample=x, rna=rna, pl=pl, type='sample.size', correction=correction,cutoff=cutoff), error = function(x) return(NA))
     })
     sfStop()
 
@@ -1142,10 +1140,27 @@ GSECA.ECmap = function( gseca
 # [*] Main Executor
 # Wraps and execute all functions
 # needed for the analysis
+# M = Gene Expression matrix
+# L = Sample label list
+# geneset = gene set list
+# symbol =  gene symbol (i.e. ensembl_gene_id)
+# p_adj_th = adjusted p-value threshold
+# analysis = analysis name
+# outdir = outdir folder
+# N.CORES = number of cores
+# EMPIRICAL = true if empirical p-value is requested
+# BOOTSTRP = true if success rate is requested
+# nsim = number of bootstrapping
+# AS = AS threshold
+# PEMP = p.emp threshold
+# SR = success rate threshold
+# toprank = number of topranked gene sets
+# iphen =  phenotype lables ("CASE","CNTR")
 GSECA_executor <- function( M
                             , L
-                            , symbol
                             , geneset
+                            , symbol="ensembl_gene_id"
+                            , correction='fdr'
                             , p_adj_th = 0.1
                             , analysis = NULL
                             , outdir = NULL
@@ -1170,10 +1185,12 @@ GSECA_executor <- function( M
 
   message("[*] GSECA running ...")
   expr  = get_mixture_expr_class(expr, ne_value = 0.01 , nc  = N.CORES )
-  gcr   = gene_class_representation(expr, pl = geneset)
-  gseca = GSECA(  pl=geneset, gcr)
+  gcr   = gene_class_representation(expr, pl = geneset, correction = correction)
+  gseca = GSECA(  pl=geneset, gcr, correction = correction )
+
   gseca$p.emp = NA
-  gseca$success_rate = NA
+  gseca$sr = NA
+
   if(EMPIRICAL){
     message(" [*] Empirical P-Value estimation ... ")
     gseca.emp <- GSECA.Bootstrap.empirical( expr, gseca, pl = geneset, NSIM = nsim, nc = N.CORES)
@@ -1183,16 +1200,20 @@ GSECA_executor <- function( M
   if(BOOTSTRP){
     message("[*] Success Rate for sample size ... ")
     gseca.boot <- GSECA.Bootstrap.sample_size( expr, gseca, pl = geneset, phen = iphen, NSIM = nsim, nc = N.CORES)
-    gseca$sr <- gseca.boot$success_rate[match(gseca$gene_set,gseca.boot$gene_set)]
+    if(!is.null(gseca.boot)) gseca$sr <- gseca.boot$success_rate[match(gseca$gene_set,gseca.boot$gene_set)]
   }
+  gseca$gene_set <- fix_names(gseca$gene_set)
 
   if( !is.null(analysis) & !is.null(outdir)  ) {
     analysis <- create.output.folder(analysis, outdir)
     outfig <- paste0(analysis,"/ECmap.as_",AS, "_padj_",p_adj_th, "_pemp_",PEMP, "_srate_",SR,".pdf")
     message(paste0("[*] Saving files in folder: ", analysis))
-    gseca$gene_set <- fix_names(gseca$gene_set)
-    save(expr, gseca, file=paste0(analysis,"Results/gseca.Rdata"))
-    write.csv(gseca, file=paste0(analysis,"Results/gseca.csv"), row.names = F)
+
+    saveRDS(expr, file=paste0(analysis,"/expr.rds"))
+    saveRDS(gseca, file=paste0(analysis,"/gseca.rds"))
+    write.csv(gseca, file=paste0(analysis,"/gseca.csv"), row.names = F)
+
+
   } else {
     outfig <- NULL
   }

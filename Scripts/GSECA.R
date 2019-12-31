@@ -1,4 +1,4 @@
-# PRAD - PTEN loss example analysis ========
+#  Toy analysis ========
 
 # load configurations
 source("Scripts/config.R")
@@ -7,25 +7,25 @@ source("Scripts/config.R")
 M = read.delim("Examples/PRAD.ptenloss.M.tsv")
 L = read.delim("Examples/PRAD.ptenloss.L.tsv")[,1]
 
-# Pathway list
-pl <- read.gmt.file("gene_sets/cereda.158.KEGG.gmt")
+# Gene set list
+pl = read.gmt.file("gene_sets/cereda.158.KEGG.gmt")
 
-res = GSECA_executor(  M
-                     , L
-                     , symbol="ensembl_gene_id"
-                     , pl
-                     , outdir = "Results"
-                     , analysis = "PTEN"
-                     , p_adj_th = 0.1
-                     , N.CORES = 2
-                     , EMPIRICAL = T
+# Run GSECA
+res = GSECA_executor(  M # Gene Expression matrix
+                     , L # Sample label list
+                     , pl # gene set list
+                     , outdir = "Results" #outdir folder
+                     , analysis = "my_analysis"# analysis name
+                     , N.CORES = 2 # number of cores
+                     , EMPIRICAL = T # true if empirical p-value is requested
                      , BOOTSTRP = T
-                     , nsim = 2
-                     , AS = 0.25
-                     , PEMP    = 1
-                     , SR   = 0.7
-                     , toprank = 20
+                     , nsim = 2 # number of bootstrapping
+                     , AS = 0.25 # AS threshold
+                     , PEMP = 1 # p.emp threshold
+                     , SR   = 0.7 # success rate threshold
+                     , toprank = 10 # success rate threshold
+                     , iphen = c("CASE", "CNTR") #  phenotype lables
 )
 
-
+devtools::session_info()
 
