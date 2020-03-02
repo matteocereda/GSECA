@@ -25,14 +25,23 @@ pkgs <- c( 'ggrepel'
 
 not_installed <- which( ! pkgs %in% rownames(installed.packages()) )
 
+if(length(not_installed)>0){
+  for(i in not_installed) install.packages(pkgs[i])
+}
+
+not_installed <- which( ! pkgs %in% rownames(installed.packages()) )
+
+if(length(not_installed)>0){
+  if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+  for(i in not_installed) BiocManager::install(pkgs[i])
+}
+
 if(any(grepl('ComplexHeatmap', not_installed))) {
   source("http://bioconductor.org/biocLite.R")
   biocLite('ComplexHeatmap')
 }
 
-if(length(not_installed)>0){
-  for(i in not_installed) install.packages(pkgs[i])
-}
 
 for(i in pkgs) suppressWarnings(suppressPackageStartupMessages(library(i, character.only =T)))
 
