@@ -565,23 +565,29 @@ gene_class_representation <- function(r, pl, correction = 'fdr' , cutoff = 0.01
   invariant <- subset(cnts, is.na(direction))
   cnts      <- subset(cnts, !is.na(direction))
 
-  stats <- t(apply(cnts, 1, FISHER))
+ 
+  if(nrow(cnts)>0){
+    stats <- t(apply(cnts, 1, FISHER))
+    # set pvalue == 0 as minimum measured value
+    min_pv = min(stats[ which(stats[,1]>0) ,1 ], na.rm = T)
+    if(min_pv>0.005) min_pv = 0.005
+    stats[which(stats[,1]==0),1] = min_pv
+    cnts$pv <- stats[,1]
+    cnts$or <- stats[,2]
 
-  # set pvalue == 0 as minimum measured value
-  min_pv = min(stats[ which(stats[,1]>0) ,1 ], na.rm = T)
+    if(nrow(invariant)>0) {
+      invariant$pv <- 1
+      invariant$or <- 0
+      cnts <- rbind(cnts, invariant)
+    }
 
-  if(min_pv>0.005) min_pv = 0.005
-
-  stats[which(stats[,1]==0),1] = min_pv
-
-  invariant$pv <- 1
-  invariant$or <- 0
-
-  cnts$pv <- stats[,1]
-  cnts$or <- stats[,2]
-
-  cnts <- rbind(cnts, invariant)
-  cnts <- dlply(cnts, .(geneID), here(plyr::mutate)
+  }else if (nrow(invariant)>0) {
+    invariant$pv <- 1
+    invariant$or <- 0
+    cnts = invariant
+  }
+ 
+   cnts <- dlply(cnts, .(geneID), here(plyr::mutate)
                 , p.adj  = get_padj(correction)(pv)
                 , sumlog = suppressWarnings(sumlog(pv)$p)
                 , .progress = 'text'
