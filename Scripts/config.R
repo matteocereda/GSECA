@@ -564,8 +564,7 @@ gene_class_representation <- function(r, pl, correction = 'fdr' , cutoff = 0.01
 
   invariant <- subset(cnts, is.na(direction))
   cnts      <- subset(cnts, !is.na(direction))
-
- 
+  
   if(nrow(cnts)>0){
     stats <- t(apply(cnts, 1, FISHER))
     # set pvalue == 0 as minimum measured value
@@ -574,20 +573,20 @@ gene_class_representation <- function(r, pl, correction = 'fdr' , cutoff = 0.01
     stats[which(stats[,1]==0),1] = min_pv
     cnts$pv <- stats[,1]
     cnts$or <- stats[,2]
-
+    
     if(nrow(invariant)>0) {
       invariant$pv <- 1
       invariant$or <- 0
       cnts <- rbind(cnts, invariant)
     }
-
+    
   }else if (nrow(invariant)>0) {
     invariant$pv <- 1
     invariant$or <- 0
     cnts = invariant
   }
- 
-   cnts <- dlply(cnts, .(geneID), here(plyr::mutate)
+  
+  cnts <- dlply(cnts, .(geneID), here(plyr::mutate)
                 , p.adj  = get_padj(correction)(pv)
                 , sumlog = suppressWarnings(sumlog(pv)$p)
                 , .progress = 'text'
@@ -953,11 +952,16 @@ GSECA.ECmap = function( gseca
                         , pemp=NULL # Empiricial p-value threshold
                         , SR=NULL   # Success rate threshold
                         , toprank=0
-
+                        , res_dim=NULL # must be list of unit() : list(width, height)
 ){
 
   require(RColorBrewer)
-  message("Thresholds: \nP-value adj ",p_adj,"\nAssociation score ",AS,"\n")
+  message("[*] Thresholds:"
+          ,"\n - adj p-value = ",p_adj,
+          "\n - Association score (AS) = ", AS
+          ,"\n - Empirical p-value (PE) = ",pemp
+          ,"\n - Success rate (SR) = ", SR
+          ,"\n")
 
   pemp  = ifelse(sum(is.na(unique(gseca$p.emp)))==0, pemp, NA)
   SR = ifelse(sum(is.na(unique(gseca$sr)))==0, SR, NA)
@@ -1007,8 +1011,12 @@ GSECA.ECmap = function( gseca
       , SR = anno_barplot(matrix(score[match(rownames(ECmap), score$gene_set), "sr"])
                           , axis = TRUE, border = T, axis_param = list(side = "bottom")
                           , gp = gpar(fill = c("black")), bar_width = 0.6)
-      , gap = unit(c(2, 4), "mm")
-      , width = unit(2.5, "cm")
+      , PE = anno_barplot(matrix(-log10(score[match(rownames(ECmap), score$gene_set), "p.emp"]))
+                          , axis = TRUE, border = T, axis_param = list(side = "bottom")
+                          , gp = gpar(fill = c("black")), bar_width = 0.6)
+      
+      , gap = unit(c(2,2, 4), "mm")
+      , width = unit(4, "cm")
       , show_annotation_name = TRUE
       , annotation_name_side = 'top'
       , annotation_name_rot = 0
@@ -1116,7 +1124,12 @@ GSECA.ECmap = function( gseca
   )
 
   if(!is.null(filename)){
-    pdf(file=filename,  paper = "a4", useDingbats = F)
+    if(!is.null(res_dim)){
+      pdf(file=filename,  paper = "a4", useDingbats = F, width = res_dim[[1]], height = res_dim[[2]])
+    }else{
+      pdf(file=filename,  paper = "a4", useDingbats = F)
+    }
+    
     grid.newpage()
 
     l=grid.layout(  nrow=4, heights = c(.05, .8, .1, .05)
