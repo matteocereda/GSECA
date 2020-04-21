@@ -26,7 +26,7 @@ For further details check our paper in *Nucleic Acid Research* [here](https://do
 
 GSECA requires as input files:
 
--  Gene expression matrix (".tsv", tab separated): matrix of normalized gene expression levels from RNA-seq experiments. Rows represent genes, columns represent samples and the corresponding expression levels. The first column must contain gene symbols, thus the first row must contain the label "symbol" followed by sample identifiers (e.g. barcodes). 
+-  Gene expression matrix (".tsv", tab separated): matrix of normalized gene expression levels from RNA-seq experiments. Rows represent genes, columns represent samples and the corresponding expression levels. The first column must contain ensembl gene id, thus the first row must contain the label "ensembl_gene_id" followed by sample identifiers (e.g. barcodes). **one line one gene** be sure that your data do not contains duplicated gene ids.
 ```
 ensembl_gene_id TCGA.YL.A8HL TCGA.EJ.5516 TCGA.KK.A8IC TCGA.EJ.7314 ...
 ENSG00000000003        12.37        23.16        11.61        13.97 ...
@@ -39,12 +39,11 @@ ENSG00000000460         0.78         0.95         0.77         0.77 ...
 ```
 
 -  Sample type labels (".tsv", tab separated): an ordered list of phenotype labels (CASE / CNTR), one per row matching the order of samples given in the gene expression matrix. The first row must contain the label "x".
-
 ```
 [1] "CASE" "CASE" "CASE" .... "CNTR" "CNTR" "CNTR" ...
 ```
 
--  Gene sets (".gmt" file): the list of gene sets to be tested. It can be predefined by the user, or selected from a collection of pre-processed gene sets of biological pathways and diseases included in the Shiny app.
+-  Gene sets (".gmt" file): the list of gene sets to be tested. It can be predefined by the user, or selected from a collection of pre-processed gene sets of biological pathways and diseases included in the Shiny app. If you provide you own gene set list, please be sure that it satisfies all *gmt format* requirments (see details [here](https://software.broadinstitute.org/cancer/software/gsea/wiki/index.php/Data_formats#GMT:_Gene_Matrix_Transposed_file_format_.28.2A.gmt.29))
 
 ```
 List of 4
@@ -318,9 +317,9 @@ shiny::runGitHub('matteocereda/GSECA', subdir="Shiny")
 
 GSECA has been designed by Dr **Matteo Cereda** and developed with Andrea Lauria, Serena Peirone and Marco Del Giudice.
 
-Main developer: Matteo Cereda and Andrea Lauria. 
+Main developer: Matteo Cereda, Andrea Lauria and Serena Peirone. 
 
-Contributing developers: Serena Peirone and Marco Del Giudice.
+Contributing developers: Marco Del Giudice.
 
 Contributions are always welcome!
 
