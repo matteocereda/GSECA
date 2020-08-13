@@ -27,6 +27,7 @@ For further details check our paper in *Nucleic Acid Research* [here](https://do
 GSECA requires as input files:
 
 -  Gene expression matrix (".tsv", tab separated): matrix of normalized gene expression levels from RNA-seq experiments. Rows represent genes, columns represent samples and the corresponding expression levels. The first column must contain ensembl gene id, thus the first row must contain the label "ensembl_gene_id" followed by sample identifiers (e.g. barcodes). **one line one gene** be sure that your data do not contains duplicated gene ids.
+**no ensg.version** if you use ensembl_gene_id, please be sure to remove the version of each ensg (i.e. ".XX") before running GSECA.
 ```
 ensembl_gene_id TCGA.YL.A8HL TCGA.EJ.5516 TCGA.KK.A8IC TCGA.EJ.7314 ...
 ENSG00000000003        12.37        23.16        11.61        13.97 ...
